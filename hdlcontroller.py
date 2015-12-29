@@ -4,6 +4,10 @@ from queue import Queue, Empty
 from time import sleep
 
 class HDLController:
+	"""
+	An HDLC controller based on python4yahdlc.
+	"""
+
 	max_seq_no = 8
 
 	def __init__(self, read_func, write_func, window=3):
@@ -29,7 +33,14 @@ class HDLController:
 		t_receiver.start()
 
 	def send(self, data):
-		# Block until a new room is available
+		"""
+		Send a new data frame.
+
+		This method will block until a new room is
+		available in the queue. The size of the queue
+		is determined by the size of the window.
+		"""
+
 		while self.data_to_send.count() >= self.window:
 			pass
 
@@ -37,15 +48,31 @@ class HDLController:
 		self.new_seq_no = (self.new_seq_no + 1) % HDLController.max_seq_no
 
 	def __send_data(self, data, seq_no):
+		"""
+		Send a new data frame.
+		"""
+
 		self.write(frame_data(data, FRAME_DATA, seq_no))
 
 	def __send_ack(self, seq_no):
+		"""
+		Send a new ack frame.
+		"""
+
 		self.write(frame_data('', FRAME_ACK, seq_no))
 
 	def __send_nack(self, seq_no):
+		"""
+		Send a new nack frame.
+		"""
+
 		self.write(frame_data('', FRAME_NACK, seq_no))
 
 	def __sender(self):
+		"""
+		Thread used to send HDLC frames.
+		"""
+
 		while True:
 			# Data to resend ?
 			try:
@@ -79,6 +106,10 @@ class HDLController:
 				pass
 
 	def __receiver(self):
+		"""
+		Thread used to receive HDLC frames.
+		"""
+
 		while True:
 			try:
 				data, type, seq_no = get_data(self.read())
