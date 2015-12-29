@@ -10,6 +10,7 @@ class HDLController:
 		self.window = window
 		self.data_to_send = list()
 		self.ack_to_send = Queue(self.window)
+		self.data_to_resend = Queue(self.window)
 		self.send_seq_no = 0
 		self.last_data_sent = 0
 
@@ -27,37 +28,52 @@ class HDLController:
 		t_sender.start()
 		t_receiver.start()
 
-	def send_data(self, data):
+	def send(self, data):
 		# Block until a new room is available
 		while self.data_to_send.count() >= self.window:
 			pass
 
-		self.data_to_send.insert(self.send_seq_no, (data, FRAME_DATA, self.send_seq_no))
+		self.data_to_send.insert(self.send_seq_no, data)
 		self.send_seq_no = (self.send_seq_no + 1) % HDLController.max_seq_no
+
+	def __send_data(self, data, seq_no):
+		self.write(frame_data(data, FRAME_DATA, seq_no))
 
 	def __send_ack(self, seq_no):
 		self.write(frame_data('', FRAME_ACK, seq_no))
-
-	def __send_ack(self, type, seq_no):
-		self.write(frame_data('', type, seq_no))
 
 	def __send_nack(self, seq_no):
 		self.write(frame_data('', FRAME_NACK, seq_no))
 
 	def __sender(self):
 		while True:
+			# Data to resend ?
+			try:
+				for i in range(self.window):
+					seq_no = self.data_to_resend.get_nowait()
+					data = self.data_to_send[seq_no]
+					self.__send_data(data, seq_no)
+			except Empty:
+				pass
+
 			# Ack to send ?
 			try:
 				for i in range(self.window):
 					type, seq_no = self.ack_to_send.get_nowait()
-					self.__send_ack(type, seq_no)
+
+					if type == FRAME_ACK:
+						self.__send_ack(seq_no)
+					elif type == FRAME_NACK:
+						self.__send_nack(seq_no)
+					else:
+						raise TypeError('Bad frame type')
 			except Empty:
 				pass
 
 			# Data to send ?
 			try:
-				data, type, seq_no = self.data_to_send[self.last_data_sent]
-				self.write(frame_data(data, type, seq_no))
+				data = self.data_to_send[self.last_data_sent]
+				self.__send_data(data, self.last_data_sent)
 				self.last_data_sent = (self.last_sent + 1) % HDLController.max_seq_no
 			except IndexError:
 				pass
@@ -73,7 +89,7 @@ class HDLController:
 				elif type == FRAME_ACK:
 					del self.data_to_send[seq_no]
 				elif type == FRAME_NACK:
-					pass
+					self.data_to_resend.put(seq_no)
 				else:
 					raise TypeError('Bad frame type received')
 			except MessageError:
