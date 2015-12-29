@@ -48,8 +48,9 @@ class HDLController:
 		while True:
 			# Ack to send ?
 			try:
-				type, seq_no = self.ack_to_send.get_nowait()
-				self.__send_ack(type, seq_no)
+				for i in range(self.window):
+					type, seq_no = self.ack_to_send.get_nowait()
+					self.__send_ack(type, seq_no)
 			except Empty:
 				pass
 
