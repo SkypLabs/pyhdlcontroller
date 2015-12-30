@@ -181,12 +181,21 @@ class HDLController:
 if __name__ == '__main__':
 	import serial
 	from sys import stdout, stderr
+	from argparse import ArgumentParser
+
+	ap = ArgumentParser(
+		description='HDLC controller',
+	)
+	ap.add_argument('-d', '--device', default='/dev/ttyACM0', help='serial device to use')
+	ap.add_argument('-b', '--baudrate', type=int, default='9600', help='serial baudrate value')
+	ap.add_argument('-t', '--timeout', type=int, default='0', help='serial read timeout value')
+	args = vars(ap.parse_args())
 
 	# Serial port configuration
 	ser = serial.Serial()
-	ser.port = '/dev/pts/6'
-	ser.baudrate = 9600
-	ser.timeout = 0
+	ser.port = args['device']
+	ser.baudrate = args['baudrate']
+	ser.timeout = args['timeout']
 
 	stdout.write('[*] Connection ...\n')
 
