@@ -11,24 +11,35 @@ class HDLController:
 
 	def __init__(self, read_func, write_func, window=3):
 		if not hasattr(read_func, '__call__'):
-			raise TypeError('The read function is not a callable object')
+			raise TypeError('The read function parameter is not a callable object')
 		if not hasattr(write_func, '__call__'):
-			raise TypeError('The write function is not a callable object')
+			raise TypeError('The write function parameter is not a callable object')
 
 		self.read = read_func
 		self.write = write_func
 
 		self.window = window
-		self.senders = list()
+		self.senders = dict()
 		self.send_lock = Lock()
 		self.new_seq_no = 0
 
-		self.receiver = self.Receiver(self.read, self.write, self.send_lock, self.senders)
+		self.send_callback = None
+		self.receive_callback = None
+
+		self.receiver = None
 
 	def start(self):
 		"""
 		Start HDLC controller's threads.
 		"""
+
+		self.receiver = self.Receiver(
+			self.read,
+			self.write,
+			self.send_lock,
+			self.senders,
+			callback=self.receive_callback,
+		)
 
 		self.receiver.start()
 
@@ -39,8 +50,36 @@ class HDLController:
 
 		self.receiver.join()
 
-		for s in self.senders:
+		for s in self.senders.values():
 			s.join()
+
+	def set_send_callback(self, callback):
+		"""
+		Set the send callback function.
+
+		If the HDLC controller has already
+		been started, the new callback
+		function will be take into account
+		for the next data frames to send.
+		"""
+
+		if not hasattr(callback, '__call__'):
+			raise TypeError('The callback function parameter is not a callable object')
+
+		self.send_callback = callback
+
+	def set_receive_callback(self, callback):
+		"""
+		Set the receive callback function.
+
+		This method has to be called before
+		starting the HDLC controller.
+		"""
+
+		if not hasattr(callback, '__call__'):
+			raise TypeError('The callback function parameter is not a callable object')
+
+		self.receive_callback = callback
 
 	def send(self, data):
 		"""
@@ -54,7 +93,14 @@ class HDLController:
 		while len(self.senders) >= self.window:
 			pass
 
-		self.senders.insert(self.new_seq_no, self.Sender(self.write, self.send_lock, data, self.new_seq_no))
+		self.senders[self.new_seq_no] = self.Sender(
+			self.write,
+			self.send_lock,
+			data,
+			self.new_seq_no,
+			callback=self.send_callback,
+		)
+
 		self.senders[self.new_seq_no].start()
 		self.new_seq_no = (self.new_seq_no + 1) % HDLController.MAX_SEQ_NO
 
@@ -63,12 +109,13 @@ class HDLController:
 		Thread used to send HDLC frames.
 		"""
 
-		def __init__(self, write_func, send_lock, data, seq_no):
+		def __init__(self, write_func, send_lock, data, seq_no, callback=None):
 			super().__init__()
 			self.write = write_func
 			self.send_lock = send_lock
 			self.data = data
 			self.seq_no = seq_no
+			self.callback = callback
 			self.ack = Event()
 
 		def run(self):
@@ -112,6 +159,9 @@ class HDLController:
 			Send a new data frame.
 			"""
 
+			if self.callback != None:
+				self.callback(self.data)
+
 			self.write(frame_data(self.data, FRAME_DATA, self.seq_no))
 
 	class Receiver(Thread):
@@ -119,12 +169,13 @@ class HDLController:
 		Thread used to receive HDLC frames.
 		"""
 
-		def __init__(self, read_func, write_func, send_lock, senders_list):
+		def __init__(self, read_func, write_func, send_lock, senders_list, callback=None):
 			super().__init__()
 			self.read = read_func
 			self.write = write_func
 			self.send_lock = send_lock
 			self.senders = senders_list
+			self.callback = callback
 			self.stop_receiver = Event()
 
 		def run(self):
@@ -133,6 +184,9 @@ class HDLController:
 					data, type, seq_no = get_data(self.read())
 
 					if type == FRAME_DATA:
+						if self.callback != None:
+							self.callback(data)
+
 						with self.send_lock:
 							self.__send_ack((seq_no + 1) % HDLController.MAX_SEQ_NO)
 					elif type == FRAME_ACK:
@@ -146,7 +200,7 @@ class HDLController:
 				except MessageError:
 					# No HDLC frame detected
 					pass
-				except IndexError:
+				except KeyError:
 					# Drop bad (n)ack
 					pass
 				except FCSError:
@@ -208,10 +262,20 @@ if __name__ == '__main__':
 	def read_uart():
 		return ser.read(ser.inWaiting())
 
+	def send_callback(data):
+		print('> {0}'.format(data))
+
+	def receive_callback(data):
+		print('< {0}'.format(data))
+
 	try:
 		hdlc_c = HDLController(read_uart, ser.write)
+		hdlc_c.set_send_callback(send_callback)
+		hdlc_c.set_receive_callback(receive_callback)
 		hdlc_c.start()
-		while True: pass
+		while True:
+			hdlc_c.send('test')
+			sleep(1)
 	except KeyboardInterrupt:
 		stdout.write('[*] Bye !\n')
 		hdlc_c.stop()
