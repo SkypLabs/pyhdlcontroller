@@ -240,7 +240,8 @@ if __name__ == '__main__':
 	from argparse import ArgumentParser
 
 	ap = ArgumentParser(
-		description='HDLC controller',
+		description='HDLC controller example',
+		epilog="Example: ./hdlcontroller.py -d /dev/ttyUSB0 -b 115200 -m 'Hello world!'",
 	)
 	ap.add_argument('-d', '--device', default='/dev/ttyACM0', help='serial device to use (default: /dev/ttyACM0)')
 	ap.add_argument('-b', '--baudrate', type=int, default='9600', help='serial baudrate value (default: 9600)')
