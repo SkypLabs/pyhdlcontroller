@@ -242,10 +242,10 @@ if __name__ == '__main__':
 	ap = ArgumentParser(
 		description='HDLC controller',
 	)
-	ap.add_argument('-d', '--device', default='/dev/ttyACM0', help='serial device to use')
-	ap.add_argument('-b', '--baudrate', type=int, default='9600', help='serial baudrate value')
-	ap.add_argument('-t', '--timeout', type=int, default='0', help='serial read timeout value')
-	ap.add_argument('-m', '--message', default='test', help='test message to send')
+	ap.add_argument('-d', '--device', default='/dev/ttyACM0', help='serial device to use (default: /dev/ttyACM0)')
+	ap.add_argument('-b', '--baudrate', type=int, default='9600', help='serial baudrate value (default: 9600)')
+	ap.add_argument('-t', '--timeout', type=int, default='0', help='serial read timeout value (default: 0)')
+	ap.add_argument('-m', '--message', default='test', help='test message to send (default: test)')
 	args = vars(ap.parse_args())
 
 	# Serial port configuration
