@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from yahdlc import *
 from threading import Thread, Event, Lock
 from time import sleep
