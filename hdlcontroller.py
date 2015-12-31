@@ -247,6 +247,7 @@ if __name__ == '__main__':
 	ap.add_argument('-b', '--baudrate', type=int, default='9600', help='serial baudrate value (default: 9600)')
 	ap.add_argument('-t', '--timeout', type=int, default='0', help='serial read timeout value (default: 0)')
 	ap.add_argument('-m', '--message', default='test', help='test message to send (default: test)')
+	ap.add_argument('-i', '--interval', type=float, default='1.0', help='sending interval between two data frames (default: 1.0)')
 	args = vars(ap.parse_args())
 
 	# Serial port configuration
@@ -279,7 +280,7 @@ if __name__ == '__main__':
 		hdlc_c.start()
 		while True:
 			hdlc_c.send(args['message'])
-			sleep(1)
+			sleep(args['interval'])
 	except KeyboardInterrupt:
 		stdout.write('[*] Bye !\n')
 		hdlc_c.stop()
