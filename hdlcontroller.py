@@ -118,7 +118,7 @@ class HDLController:
 		self.senders[self.new_seq_no].start()
 		self.new_seq_no = (self.new_seq_no + 1) % HDLController.MAX_SEQ_NO
 
-	def get(self):
+	def get_data(self):
 		"""
 		Get the next frame received.
 

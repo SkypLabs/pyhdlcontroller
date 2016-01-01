@@ -144,7 +144,7 @@ class TestYahdlc(unittest.TestCase):
 
 		hdlc_c = HDLController(read_func, write_func)
 		hdlc_c.start()
-		self.assertEqual(hdlc_c.get(), b'test')
+		self.assertEqual(hdlc_c.get_data(), b'test')
 		self.assertEqual(write_func.data, frame_data('', FRAME_ACK, 1))
 		hdlc_c.stop()
 
@@ -161,9 +161,9 @@ class TestYahdlc(unittest.TestCase):
 
 		hdlc_c = HDLController(read_func, write_func)
 		hdlc_c.start()
-		self.assertEqual(hdlc_c.get(), b'test1')
-		self.assertEqual(hdlc_c.get(), b'test2')
-		self.assertEqual(hdlc_c.get(), b'test3')
+		self.assertEqual(hdlc_c.get_data(), b'test1')
+		self.assertEqual(hdlc_c.get_data(), b'test2')
+		self.assertEqual(hdlc_c.get_data(), b'test3')
 		hdlc_c.stop()
 
 if __name__ == '__main__':
