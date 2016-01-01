@@ -2,6 +2,7 @@
 
 from yahdlc import *
 from threading import Thread, Event, Lock
+from queue import Queue, Full
 from time import sleep
 
 class HDLController:
@@ -11,7 +12,7 @@ class HDLController:
 
 	MAX_SEQ_NO = 8
 
-	def __init__(self, read_func, write_func, window=3):
+	def __init__(self, read_func, write_func, window=3, frames_queue_size=10):
 		if not hasattr(read_func, '__call__'):
 			raise TypeError('The read function parameter is not a callable object')
 		if not hasattr(write_func, '__call__'):
@@ -29,6 +30,7 @@ class HDLController:
 		self.receive_callback = None
 
 		self.receiver = None
+		self.frames_received = Queue(frames_queue_size)
 
 	def start(self):
 		"""
@@ -40,6 +42,7 @@ class HDLController:
 			self.write,
 			self.send_lock,
 			self.senders,
+			self.frames_received,
 			callback=self.receive_callback,
 		)
 
@@ -106,6 +109,16 @@ class HDLController:
 		self.senders[self.new_seq_no].start()
 		self.new_seq_no = (self.new_seq_no + 1) % HDLController.MAX_SEQ_NO
 
+	def get(self):
+		"""
+		Get the next frame received.
+
+		This method will block until a new
+		data frame is available.
+		"""
+
+		return self.frames_received.get()
+
 	class Sender(Thread):
 		"""
 		Thread used to send HDLC frames.
@@ -171,12 +184,13 @@ class HDLController:
 		Thread used to receive HDLC frames.
 		"""
 
-		def __init__(self, read_func, write_func, send_lock, senders_list, callback=None):
+		def __init__(self, read_func, write_func, send_lock, senders_list, frames_received, callback=None):
 			super().__init__()
 			self.read = read_func
 			self.write = write_func
 			self.send_lock = send_lock
 			self.senders = senders_list
+			self.frames_received = frames_received
 			self.callback = callback
 			self.stop_receiver = Event()
 
@@ -190,6 +204,7 @@ class HDLController:
 							if self.callback != None:
 								self.callback(data)
 
+							self.frames_received.put_nowait(data)
 							self.__send_ack((seq_no + 1) % HDLController.MAX_SEQ_NO)
 					elif type == FRAME_ACK:
 						seq_no_sent = (seq_no - 1) % HDLController.MAX_SEQ_NO
@@ -204,6 +219,11 @@ class HDLController:
 					pass
 				except KeyError:
 					# Drop bad (n)ack
+					pass
+				except Full:
+					# Drop new data frame when
+					# the frames received queue
+					# is full
 					pass
 				except FCSError:
 					with self.send_lock:
