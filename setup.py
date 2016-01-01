@@ -13,4 +13,5 @@ setup(
 	url = 'https://github.com/SkypLabs/python-hdlc-controller',
 	py_modules = ['hdlcontroller'],
 	install_requires = ['python4yahdlc>=1.0.0'],
+	test_suite = 'test',
 )
