@@ -53,7 +53,8 @@ class HDLController:
 		Stop HDLC controller's threads.
 		"""
 
-		self.receiver.join()
+		if self.receiver != None:
+			self.receiver.join()
 
 		for s in self.senders.values():
 			s.join()
