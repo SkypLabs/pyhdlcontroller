@@ -186,10 +186,10 @@ class HDLController:
 					data, type, seq_no = get_data(self.read())
 
 					if type == FRAME_DATA:
-						if self.callback != None:
-							self.callback(data)
-
 						with self.send_lock:
+							if self.callback != None:
+								self.callback(data)
+
 							self.__send_ack((seq_no + 1) % HDLController.MAX_SEQ_NO)
 					elif type == FRAME_ACK:
 						seq_no_sent = (seq_no - 1) % HDLController.MAX_SEQ_NO
