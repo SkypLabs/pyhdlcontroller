@@ -86,6 +86,14 @@ class HDLController:
 
 		self.receive_callback = callback
 
+	def get_senders_number(self):
+		"""
+		Return the number of active
+		senders.
+		"""
+
+		return len(self.senders)
+
 	def send(self, data):
 		"""
 		Send a new data frame.
