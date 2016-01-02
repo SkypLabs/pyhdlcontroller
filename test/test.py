@@ -54,6 +54,7 @@ class TestYahdlc(unittest.TestCase):
 
 		hdlc_c = HDLController(read_func, write_func)
 		hdlc_c.send('test')
+		while write_func.data == None: pass
 		self.assertEqual(write_func.data, frame_data('test', FRAME_DATA, 0))
 		self.assertEqual(hdlc_c.get_senders_number(), 1)
 		hdlc_c.stop()
@@ -69,12 +70,17 @@ class TestYahdlc(unittest.TestCase):
 
 		hdlc_c = HDLController(read_func, write_func)
 		hdlc_c.send('test1')
+		while write_func.data == None: pass
 		self.assertEqual(write_func.data, frame_data('test1', FRAME_DATA, 0))
 		self.assertEqual(hdlc_c.get_senders_number(), 1)
+		write_func.data = None
 		hdlc_c.send('test2')
+		while write_func.data == None: pass
 		self.assertEqual(write_func.data, frame_data('test2', FRAME_DATA, 1))
 		self.assertEqual(hdlc_c.get_senders_number(), 2)
+		write_func.data = None
 		hdlc_c.send('test3')
+		while write_func.data == None: pass
 		self.assertEqual(write_func.data, frame_data('test3', FRAME_DATA, 2))
 		self.assertEqual(hdlc_c.get_senders_number(), 3)
 		hdlc_c.stop()
@@ -90,10 +96,11 @@ class TestYahdlc(unittest.TestCase):
 
 		hdlc_c = HDLController(read_func, write_func)
 		hdlc_c.send('test')
+		while write_func.data == None: pass
 		self.assertEqual(write_func.data, frame_data('test', FRAME_DATA, 0))
 		self.assertEqual(hdlc_c.get_senders_number(), 1)
 		hdlc_c.start()
-		sleep(0.5)
+		sleep(1)
 		self.assertEqual(hdlc_c.get_senders_number(), 0)
 		hdlc_c.stop()
 
@@ -108,10 +115,11 @@ class TestYahdlc(unittest.TestCase):
 
 		hdlc_c = HDLController(read_func, write_func)
 		hdlc_c.send('test')
+		while write_func.data == None: pass
 		self.assertEqual(write_func.data, frame_data('test', FRAME_DATA, 0))
 		self.assertEqual(hdlc_c.get_senders_number(), 1)
 		hdlc_c.start()
-		sleep(0.5)
+		sleep(1)
 		self.assertEqual(hdlc_c.get_senders_number(), 1)
 		hdlc_c.stop()
 
@@ -126,10 +134,11 @@ class TestYahdlc(unittest.TestCase):
 
 		hdlc_c = HDLController(read_func, write_func)
 		hdlc_c.send('test')
+		while write_func.data == None: pass
 		self.assertEqual(write_func.data, frame_data('test', FRAME_DATA, 0))
 		self.assertEqual(hdlc_c.get_senders_number(), 1)
 		hdlc_c.start()
-		sleep(0.5)
+		sleep(1)
 		self.assertEqual(hdlc_c.get_senders_number(), 1)
 		hdlc_c.stop()
 
