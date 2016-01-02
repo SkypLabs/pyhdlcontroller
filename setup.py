@@ -2,16 +2,20 @@
 
 from setuptools import setup
 
+VERSION = '0.1.0'
+
 setup(
 	name = 'hdlcontroller',
-	version = '0.1.0',
+	version = VERSION,
 	description = 'HDLC controller',
 	license = 'MIT',
 	keywords = 'hdlc',
 	author = 'Paul-Emmanuel Raoul',
 	author_email = 'skyper@skyplabs.net',
 	url = 'https://github.com/SkypLabs/python-hdlc-controller',
+	download_url = 'https://github.com/SkypLabs/python-hdlc-controller/archive/v{0}.zip'.format(VERSION),
 	py_modules = ['hdlcontroller'],
-	install_requires = ['python4yahdlc>=1.0.0'],
+	scripts = ['hdlcontroller.py'],
+	install_requires = ['python4yahdlc>=1.0.2'],
 	test_suite = 'test',
 )
