@@ -293,6 +293,7 @@ if __name__ == '__main__':
 	ap.add_argument('-t', '--timeout', type=int, default='0', help='serial read timeout value (default: 0)')
 	ap.add_argument('-m', '--message', default='test', help='test message to send (default: test)')
 	ap.add_argument('-i', '--interval', type=float, default='1.0', help='sending interval between two data frames (default: 1.0)')
+	ap.add_argument('-w', '--window', type=int, default='3', help='sending window')
 	args = vars(ap.parse_args())
 
 	# Serial port configuration
@@ -319,7 +320,7 @@ if __name__ == '__main__':
 		print('< {0}'.format(data))
 
 	try:
-		hdlc_c = HDLController(read_uart, ser.write)
+		hdlc_c = HDLController(read_uart, ser.write, window=args['window'])
 		hdlc_c.set_send_callback(send_callback)
 		hdlc_c.set_receive_callback(receive_callback)
 		hdlc_c.start()
