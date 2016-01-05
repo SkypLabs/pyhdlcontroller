@@ -3,7 +3,7 @@
 from yahdlc import *
 from threading import Thread, Event, Lock
 from queue import Queue, Full
-from time import sleep
+from time import sleep, time
 
 class HDLController:
 	"""
@@ -11,8 +11,9 @@ class HDLController:
 	"""
 
 	MAX_SEQ_NO = 8
+	MIN_SENDING_TIMEOUT = 0.5
 
-	def __init__(self, read_func, write_func, window=3, frames_queue_size=10):
+	def __init__(self, read_func, write_func, sending_timeout=2, window=3, frames_queue_size=10):
 		if not hasattr(read_func, '__call__'):
 			raise TypeError('The read function parameter is not a callable object')
 		if not hasattr(write_func, '__call__'):
@@ -28,6 +29,8 @@ class HDLController:
 
 		self.send_callback = None
 		self.receive_callback = None
+
+		self.set_sending_timeout(sending_timeout)
 
 		self.receiver = None
 		self.frames_received = Queue(frames_queue_size)
@@ -87,6 +90,14 @@ class HDLController:
 
 		self.receive_callback = callback
 
+	def set_sending_timeout(self, sending_timeout):
+		"""
+		Set the sending timeout.
+		"""
+
+		if sending_timeout >= HDLController.MIN_SENDING_TIMEOUT:
+			self.sending_timeout = sending_timeout
+
 	def get_senders_number(self):
 		"""
 		Return the number of active
@@ -112,6 +123,7 @@ class HDLController:
 			self.send_lock,
 			data,
 			self.new_seq_no,
+			timeout=self.sending_timeout,
 			callback=self.send_callback,
 		)
 
@@ -133,12 +145,13 @@ class HDLController:
 		Thread used to send HDLC frames.
 		"""
 
-		def __init__(self, write_func, send_lock, data, seq_no, callback=None):
+		def __init__(self, write_func, send_lock, data, seq_no, timeout=2, callback=None):
 			super().__init__()
 			self.write = write_func
 			self.send_lock = send_lock
 			self.data = data
 			self.seq_no = seq_no
+			self.timeout = timeout
 			self.callback = callback
 			self.ack = Event()
 
@@ -147,7 +160,9 @@ class HDLController:
 				self.__send_data()
 
 			while not self.ack.isSet():
-				pass
+				if time() >= self.next_timeout:
+					with self.send_lock:
+						self.__send_data()
 
 		def join(self, timeout=None):
 			"""
@@ -187,6 +202,7 @@ class HDLController:
 				self.callback(self.data)
 
 			self.write(frame_data(self.data, FRAME_DATA, self.seq_no))
+			self.next_timeout = time() + self.timeout
 
 	class Receiver(Thread):
 		"""
