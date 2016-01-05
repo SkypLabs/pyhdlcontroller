@@ -290,17 +290,18 @@ if __name__ == '__main__':
 	)
 	ap.add_argument('-d', '--device', default='/dev/ttyACM0', help='serial device to use (default: /dev/ttyACM0)')
 	ap.add_argument('-b', '--baudrate', type=int, default='9600', help='serial baudrate value (default: 9600)')
-	ap.add_argument('-t', '--timeout', type=int, default='0', help='serial read timeout value (default: 0)')
+	ap.add_argument('-t', '--serial-timeout', type=int, default='0', help='serial read timeout value (default: 0)')
 	ap.add_argument('-m', '--message', default='test', help='test message to send (default: test)')
 	ap.add_argument('-i', '--interval', type=float, default='1.0', help='sending interval between two data frames (default: 1.0)')
 	ap.add_argument('-w', '--window', type=int, default='3', help='sending window')
+	ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value (default: 2)')
 	args = vars(ap.parse_args())
 
 	# Serial port configuration
 	ser = serial.Serial()
 	ser.port = args['device']
 	ser.baudrate = args['baudrate']
-	ser.timeout = args['timeout']
+	ser.timeout = args['serial_timeout']
 
 	stdout.write('[*] Connection ...\n')
 
@@ -320,7 +321,7 @@ if __name__ == '__main__':
 		print('< {0}'.format(data))
 
 	try:
-		hdlc_c = HDLController(read_uart, ser.write, window=args['window'])
+		hdlc_c = HDLController(read_uart, ser.write, window=args['window'], sending_timeout=args['sending_timeout'])
 		hdlc_c.set_send_callback(send_callback)
 		hdlc_c.set_receive_callback(receive_callback)
 		hdlc_c.start()
