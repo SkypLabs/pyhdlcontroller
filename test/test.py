@@ -85,6 +85,26 @@ class TestYahdlc(unittest.TestCase):
 		self.assertEqual(hdlc_c.get_senders_number(), 3)
 		hdlc_c.stop()
 
+	def test_send_one_frame_and_wait_timeout(self):
+		def read_func():
+			pass
+
+		def write_func(data):
+			write_func.data = data
+
+		write_func.data = None
+
+		hdlc_c = HDLController(read_func, write_func, sending_timeout=2)
+		hdlc_c.send('test')
+		while write_func.data == None: pass
+		self.assertEqual(write_func.data, frame_data('test', FRAME_DATA, 0))
+		self.assertEqual(hdlc_c.get_senders_number(), 1)
+		write_func.data = None
+		while write_func.data == None: pass
+		self.assertEqual(write_func.data, frame_data('test', FRAME_DATA, 0))
+		self.assertEqual(hdlc_c.get_senders_number(), 1)
+		hdlc_c.stop()
+
 	def test_send_frame_and_receive_ack(self):
 		def read_func():
 			return frame_data('', FRAME_ACK, 1)
