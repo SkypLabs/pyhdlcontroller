@@ -2,7 +2,7 @@
 
 from setuptools import setup
 
-VERSION = '0.1.1'
+VERSION = '0.2.0'
 
 setup(
 	name = 'hdlcontroller',
@@ -18,6 +18,6 @@ setup(
 	long_description_markdown_filename = 'README.md',
 	py_modules = ['hdlcontroller'],
 	scripts = ['hdlcontroller.py'],
-	install_requires = ['python4yahdlc>=1.0.2'],
+	install_requires = ['python4yahdlc>=1.0.2', 'pyserial'],
 	test_suite = 'test',
 )
