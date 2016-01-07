@@ -253,6 +253,11 @@ class HDLController:
 				except FCSError:
 					with self.send_lock:
 						self.__send_nack(seq_no)
+				except TypeError:
+					# Generally, raised when an
+					# HDLC frame with a bad frame
+					# type is received
+					pass
 				finally:
 					# 200 µs
 					sleep(200 / 1000000.0)
