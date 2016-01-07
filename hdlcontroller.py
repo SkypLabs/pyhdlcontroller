@@ -298,8 +298,10 @@ if __name__ == '__main__':
 	ap.add_argument('-t', '--serial-timeout', type=int, default='0', help='serial read timeout value (default: 0)')
 	ap.add_argument('-m', '--message', default='test', help='test message to send (default: test)')
 	ap.add_argument('-i', '--interval', type=float, default='1.0', help='sending interval between two data frames (default: 1.0)')
+	ap.add_argument('-q', '--quiet', action="store_true", help='do not send anything, just display what is received (default: false)')
 	ap.add_argument('-w', '--window', type=int, default='3', help='sending window')
 	ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value (default: 2)')
+	ap.set_defaults(quiet=False)
 	args = vars(ap.parse_args())
 
 	# Serial port configuration
@@ -330,9 +332,14 @@ if __name__ == '__main__':
 		hdlc_c.set_send_callback(send_callback)
 		hdlc_c.set_receive_callback(receive_callback)
 		hdlc_c.start()
-		while True:
-			hdlc_c.send(args['message'])
-			sleep(args['interval'])
+
+		if args['quiet']:
+			while True:
+				pass
+		else:
+			while True:
+				hdlc_c.send(args['message'])
+				sleep(args['interval'])
 	except KeyboardInterrupt:
 		stdout.write('[*] Bye !\n')
 		hdlc_c.stop()
