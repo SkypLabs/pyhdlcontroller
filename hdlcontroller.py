@@ -13,7 +13,7 @@ class HDLController:
 	MAX_SEQ_NO = 8
 	MIN_SENDING_TIMEOUT = 0.5
 
-	def __init__(self, read_func, write_func, sending_timeout=2, window=3, frames_queue_size=10):
+	def __init__(self, read_func, write_func, sending_timeout=2, window=3, frames_queue_size=0):
 		if not hasattr(read_func, '__call__'):
 			raise TypeError('The read function parameter is not a callable object')
 		if not hasattr(write_func, '__call__'):
@@ -33,7 +33,7 @@ class HDLController:
 		self.set_sending_timeout(sending_timeout)
 
 		self.receiver = None
-		self.frames_received = Queue(frames_queue_size)
+		self.frames_received = Queue(maxsize=frames_queue_size)
 
 	def start(self):
 		"""
