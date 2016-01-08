@@ -300,7 +300,7 @@ if __name__ == '__main__':
 	ap.add_argument('-i', '--interval', type=float, default='1.0', help='sending interval between two data frames (default: 1.0)')
 	ap.add_argument('-q', '--quiet', action="store_true", help='do not send anything, just display what is received (default: false)')
 	ap.add_argument('-w', '--window', type=int, default='3', help='sending window (default: 3)')
-	ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value (default: 2)')
+	ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value (default: 2.0)')
 	ap.set_defaults(quiet=False)
 	args = vars(ap.parse_args())
 
