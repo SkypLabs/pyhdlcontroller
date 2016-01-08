@@ -300,6 +300,7 @@ if __name__ == '__main__':
 	ap.add_argument('-i', '--interval', type=float, default='1.0', help='sending interval between two data frames (default: 1.0)')
 	ap.add_argument('-q', '--quiet', action="store_true", help='do not send anything, just display what is received (default: false)')
 	ap.add_argument('-w', '--window', type=int, default='3', help='sending window (default: 3)')
+	ap.add_argument('-Q', '--queue-size', type=int, default='0', help='queue size for data frames received (default: 0)')
 	ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value (default: 2.0)')
 	ap.set_defaults(quiet=False)
 	args = vars(ap.parse_args())
@@ -328,7 +329,13 @@ if __name__ == '__main__':
 		print('< {0}'.format(data))
 
 	try:
-		hdlc_c = HDLController(read_uart, ser.write, window=args['window'], sending_timeout=args['sending_timeout'])
+		hdlc_c = HDLController(
+			read_uart,
+			ser.write,
+			window = args['window'],
+			sending_timeout = args['sending_timeout'],
+			frames_queue_size = args['queue_size'],
+		)
 		hdlc_c.set_send_callback(send_callback)
 		hdlc_c.set_receive_callback(receive_callback)
 		hdlc_c.start()
