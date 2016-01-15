@@ -347,7 +347,7 @@ if __name__ == '__main__':
 
 		if args['quiet']:
 			while True:
-				pass
+				sleep(1)
 		else:
 			while True:
 				hdlc_c.send(args['message'])
