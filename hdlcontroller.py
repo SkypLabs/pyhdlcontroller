@@ -153,14 +153,19 @@ class HDLController:
 			self.seq_no = seq_no
 			self.timeout = timeout
 			self.callback = callback
-			self.ack = Event()
+
+			self.stop_sender = Event()
+			self.stop_timeout = Event()
+			self.next_timeout = 0
 
 		def run(self):
-			with self.send_lock:
-				self.__send_data()
+			while not self.stop_sender.isSet():
+				self.stop_timeout.wait(max(0, self.next_timeout - time()))
+				self.stop_timeout.clear()
 
-			while not self.ack.isSet():
-				if time() >= self.next_timeout:
+				if not self.stop_sender.isSet():
+					self.next_timeout = time() + self.timeout
+
 					with self.send_lock:
 						self.__send_data()
 
@@ -169,7 +174,8 @@ class HDLController:
 			Stop the current thread.
 			"""
 
-			self.ack.set()
+			self.stop_sender.set()
+			self.stop_timeout.set()
 			super().join(timeout)
 
 		def ack_received(self):
@@ -190,8 +196,7 @@ class HDLController:
 			frame.
 			"""
 
-			with self.send_lock:
-				self.__send_data()
+			self.stop_timeout.set()
 
 		def __send_data(self):
 			"""
@@ -202,7 +207,6 @@ class HDLController:
 				self.callback(self.data)
 
 			self.write(frame_data(self.data, FRAME_DATA, self.seq_no))
-			self.next_timeout = time() + self.timeout
 
 	class Receiver(Thread):
 		"""
@@ -217,6 +221,7 @@ class HDLController:
 			self.senders = senders_list
 			self.frames_received = frames_received
 			self.callback = callback
+
 			self.stop_receiver = Event()
 
 		def run(self):
