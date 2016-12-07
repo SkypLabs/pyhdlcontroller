@@ -325,7 +325,7 @@ if __name__ == '__main__':
 		exit(1)
 
 	def read_uart():
-		return ser.read(ser.inWaiting())
+		return ser.read(ser.in_waiting)
 
 	def send_callback(data):
 		print('> {0}'.format(data))

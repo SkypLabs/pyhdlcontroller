@@ -46,7 +46,7 @@ the *pyserial* module :
     ser = serial.Serial('/dev/ttyACM0')
 
     def read_serial():
-        return ser.read(ser.inWaiting())
+        return ser.read(ser.in_waiting)
 
     hdlc_c = HDLController(read_serial, ser.write)
 
