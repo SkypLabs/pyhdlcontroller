@@ -238,7 +238,7 @@ class TestYahdlc(unittest.TestCase):
     def test_receive_one_corrupted_frame(self):
         def read_func():
             data = bytearray(frame_data('test', FRAME_DATA, 0))
-            data[0] ^= 0x01
+            data[7] ^= 0x01
             return bytes(data)
 
         def write_func(data):
