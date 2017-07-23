@@ -5,7 +5,7 @@ from os.path import dirname, abspath, join
 from codecs import open
 
 DIR = dirname(abspath(__file__))
-VERSION = '0.3.1'
+VERSION = '0.3.2'
 
 with open(join(DIR, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
@@ -34,6 +34,6 @@ setup(
     ],
     py_modules = ['hdlcontroller'],
     scripts = ['hdlcontroller.py'],
-    install_requires = ['python4yahdlc>=1.0.2', 'pyserial'],
+    install_requires = ['python4yahdlc>=1.1.0', 'pyserial'],
     test_suite = 'test',
 )

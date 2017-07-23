@@ -255,9 +255,9 @@ class HDLController:
                     # the frames received queue
                     # is full
                     pass
-                except FCSError:
+                except FCSError as e:
                     with self.send_lock:
-                        self.__send_nack(seq_no)
+                        self.__send_nack(e.args[0])
                 except TypeError:
                     # Generally, raised when an
                     # HDLC frame with a bad frame
