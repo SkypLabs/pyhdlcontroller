@@ -13,7 +13,7 @@ class HDLController:
     MAX_SEQ_NO = 8
     MIN_SENDING_TIMEOUT = 0.5
 
-    def __init__(self, read_func, write_func, sending_timeout=2, window=3, frames_queue_size=0):
+    def __init__(self, read_func, write_func, sending_timeout=2, window=3, frames_queue_size=0, fcs_nack=True):
         if not hasattr(read_func, '__call__'):
             raise TypeError('The read function parameter is not a callable object')
         if not hasattr(write_func, '__call__'):
@@ -23,6 +23,7 @@ class HDLController:
         self.write = write_func
 
         self.window = window
+        self.fcs_nack = fcs_nack
         self.senders = dict()
         self.send_lock = Lock()
         self.new_seq_no = 0
@@ -47,6 +48,7 @@ class HDLController:
             self.senders,
             self.frames_received,
             callback=self.receive_callback,
+            fcs_nack=self.fcs_nack,
         )
 
         self.receiver.start()
@@ -213,7 +215,7 @@ class HDLController:
         Thread used to receive HDLC frames.
         """
 
-        def __init__(self, read_func, write_func, send_lock, senders_list, frames_received, callback=None):
+        def __init__(self, read_func, write_func, send_lock, senders_list, frames_received, callback=None, fcs_nack=True):
             super().__init__()
             self.read = read_func
             self.write = write_func
@@ -221,6 +223,7 @@ class HDLController:
             self.senders = senders_list
             self.frames_received = frames_received
             self.callback = callback
+            self.fcs_nack = fcs_nack
 
             self.stop_receiver = Event()
 
@@ -256,8 +259,12 @@ class HDLController:
                     # is full
                     pass
                 except FCSError as e:
-                    with self.send_lock:
-                        self.__send_nack(e.args[0])
+                    # Send back an NACK if a
+                    # corrupted frame is received
+                    # and the FCS NACK option is enabled
+                    if self.fcs_nack:
+                        with self.send_lock:
+                            self.__send_nack(e.args[0])
                 except TypeError:
                     # Generally, raised when an
                     # HDLC frame with a bad frame
@@ -307,7 +314,8 @@ if __name__ == '__main__':
     ap.add_argument('-w', '--window', type=int, default='3', help='sending window (default: 3)')
     ap.add_argument('-Q', '--queue-size', type=int, default='0', help='queue size for data frames received (default: 0)')
     ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value in seconds (default: 2.0)')
-    ap.set_defaults(quiet=False)
+    ap.add_argument('-N', '--no-fcs-nack', action='store_true', help='do not send back an NACK when a corrupted frame is received (default: false)')
+    ap.set_defaults(quiet=False, no_fcs_nack=False)
     args = vars(ap.parse_args())
 
     # Serial port configuration
@@ -340,6 +348,7 @@ if __name__ == '__main__':
             window = args['window'],
             sending_timeout = args['sending_timeout'],
             frames_queue_size = args['queue_size'],
+            fcs_nack = not(no_fcs_nack),
         )
         hdlc_c.set_send_callback(send_callback)
         hdlc_c.set_receive_callback(receive_callback)
