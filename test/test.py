@@ -235,7 +235,7 @@ class TestYahdlc(unittest.TestCase):
         self.assertEqual(hdlc_c.get_data(), b'test3')
         hdlc_c.stop()
 
-    def test_receive_one_corrupted_frame(self):
+    def test_receive_one_corrupted_frame_and_send_back_nack(self):
         def read_func():
             data = bytearray(frame_data('test', FRAME_DATA, 0))
             data[7] ^= 0x01
@@ -250,6 +250,23 @@ class TestYahdlc(unittest.TestCase):
         hdlc_c.start()
         while write_func.data == None: pass
         self.assertEqual(write_func.data, frame_data('', FRAME_NACK, 0))
+        hdlc_c.stop()
+
+    def test_receive_one_corrupted_frame_and_do_not_send_back_nack(self):
+        def read_func():
+            data = bytearray(frame_data('test', FRAME_DATA, 0))
+            data[7] ^= 0x01
+            return bytes(data)
+
+        def write_func(data):
+            write_func.data = data
+
+        write_func.data = None
+
+        hdlc_c = HDLController(read_func, write_func, fcs_nack=False)
+        hdlc_c.start()
+        sleep(1)
+        self.assertEqual(write_func.data, None)
         hdlc_c.stop()
 
 if __name__ == '__main__':
