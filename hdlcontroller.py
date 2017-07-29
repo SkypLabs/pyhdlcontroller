@@ -305,16 +305,16 @@ if __name__ == '__main__':
         description='HDLC controller example',
         epilog="Example: ./hdlcontroller.py -d /dev/ttyUSB0 -b 115200 -m 'Hello world!'",
     )
-    ap.add_argument('-d', '--device', default='/dev/ttyACM0', help='serial device to use (default: /dev/ttyACM0)')
     ap.add_argument('-b', '--baudrate', type=int, default='9600', help='serial baudrate value in bauds per second (default: 9600)')
-    ap.add_argument('-t', '--serial-timeout', type=int, default='0', help='serial read timeout value in seconds (default: 0)')
-    ap.add_argument('-m', '--message', default='test', help='test message to send (default: test)')
+    ap.add_argument('-d', '--device', default='/dev/ttyACM0', help='serial device to use (default: /dev/ttyACM0)')
     ap.add_argument('-i', '--interval', type=float, default='1.0', help='sending interval between two data frames in seconds (default: 1.0)')
-    ap.add_argument('-q', '--quiet', action="store_true", help='do not send anything, just display what is received (default: false)')
-    ap.add_argument('-w', '--window', type=int, default='3', help='sending window (default: 3)')
-    ap.add_argument('-Q', '--queue-size', type=int, default='0', help='queue size for data frames received (default: 0)')
-    ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value in seconds (default: 2.0)')
+    ap.add_argument('-m', '--message', default='test', help='test message to send (default: test)')
     ap.add_argument('-N', '--no-fcs-nack', action='store_true', help='do not send back an NACK when a corrupted frame is received (default: false)')
+    ap.add_argument('-q', '--quiet', action="store_true", help='do not send anything, just display what is received (default: false)')
+    ap.add_argument('-Q', '--queue-size', type=int, default='0', help='queue size for data frames received (default: 0)')
+    ap.add_argument('-t', '--serial-timeout', type=int, default='0', help='serial read timeout value in seconds (default: 0)')
+    ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value in seconds (default: 2.0)')
+    ap.add_argument('-w', '--window', type=int, default='3', help='sending window (default: 3)')
     ap.set_defaults(quiet=False, no_fcs_nack=False)
     args = vars(ap.parse_args())
 
