@@ -1,3 +1,5 @@
+sudo: false
+
 language: python
 
 python:
@@ -6,15 +8,18 @@ python:
   - 3.4
   - 3.5
 
-deploy:
-  provider: pypi
-  distributions: sdist
-  user: skyplabs
-  password:
-    secure: O/zitqetdLjwXRtNCtjKAbo5BOSH5OIxsvUR0RZp+AAecJ3QxEqr/5XYyP5egSGmMcPXkTwuO8Xjlaqg4VW0MraqkjfBcpvxJeJ73db/hrsAm/dGlHHT5xfKHDY+17l0wFG9DIVy1D9LpMPU2h5ludkh8m+x72jlQgX9h8TNiAYFPrZ5aXn/+D1KGofCGe4t1S6xxXuJfMaRpHWSKPnsVQHbtpqwhwIfyw3nmmFDzd99B+OKrT/XaCu2+IZubmYglOyDNs/9o6PQOkZ7xvJhHiEAiwShFh3NEjVxFRVDJWsMDlC1CgubKjKRug4DJD+TTClRyI3uWksJazriNcp9SicySgk/b+qj4LfhaoF3FbHZyrgPUpQ4AVW2+RRLn4jgHtBxTxfrCpWz5AxYO5uocTkqU67hYHfXe7wfztYgG5HwCTzLcpSwhNncRl+nrrEHBSw2wCoL6IbJjh+Uug6IVZbcYVf/+LnJMMDgIe2FinWE0DOsks77OAT8qPValT6cPoV6O5N4cOdY+AZ9u/peK7rn8s3GorxXQFEoUZ/S+ahFAkEkP9TNYaKRnU5akWvsH3hm+EdGG/EIJfQBS2KLs6FF7ffAat3KD0DzvbRhGFXOoIKWB60vTY1CGjFQkF6IkQZOFknL9Pr7QR4G4zAIBdKBbdJDN1BTPDx0VZPy1b4=
-  on:
-    tags: true
-    repo: SkypLabs/python-hdlc-controller
-    condition: $TRAVIS_PYTHON_VERSION = "3.5"
-
 script: python setup.py test
+
+jobs:
+  include:
+    - stage: PyPI release
+      python: "3.5"
+      deploy:
+        provider: pypi
+        distributions: sdist
+        user: skyplabs
+        password:
+          secure: O/zitqetdLjwXRtNCtjKAbo5BOSH5OIxsvUR0RZp+AAecJ3QxEqr/5XYyP5egSGmMcPXkTwuO8Xjlaqg4VW0MraqkjfBcpvxJeJ73db/hrsAm/dGlHHT5xfKHDY+17l0wFG9DIVy1D9LpMPU2h5ludkh8m+x72jlQgX9h8TNiAYFPrZ5aXn/+D1KGofCGe4t1S6xxXuJfMaRpHWSKPnsVQHbtpqwhwIfyw3nmmFDzd99B+OKrT/XaCu2+IZubmYglOyDNs/9o6PQOkZ7xvJhHiEAiwShFh3NEjVxFRVDJWsMDlC1CgubKjKRug4DJD+TTClRyI3uWksJazriNcp9SicySgk/b+qj4LfhaoF3FbHZyrgPUpQ4AVW2+RRLn4jgHtBxTxfrCpWz5AxYO5uocTkqU67hYHfXe7wfztYgG5HwCTzLcpSwhNncRl+nrrEHBSw2wCoL6IbJjh+Uug6IVZbcYVf/+LnJMMDgIe2FinWE0DOsks77OAT8qPValT6cPoV6O5N4cOdY+AZ9u/peK7rn8s3GorxXQFEoUZ/S+ahFAkEkP9TNYaKRnU5akWvsH3hm+EdGG/EIJfQBS2KLs6FF7ffAat3KD0DzvbRhGFXOoIKWB60vTY1CGjFQkF6IkQZOFknL9Pr7QR4G4zAIBdKBbdJDN1BTPDx0VZPy1b4=
+        on:
+          tags: true
+          repo: SkypLabs/python-hdlc-controller
