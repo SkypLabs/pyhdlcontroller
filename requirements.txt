@@ -1,0 +1,2 @@
+pyserial>=3.0
+python4yadhlc>=1.1.0

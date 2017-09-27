@@ -34,6 +34,6 @@ setup(
     ],
     py_modules = ['hdlcontroller'],
     scripts = ['hdlcontroller.py'],
-    install_requires = ['python4yahdlc>=1.1.0', 'pyserial'],
+    install_requires = ['python4yahdlc>=1.1.0', 'pyserial>=3.0'],
     test_suite = 'test',
 )
