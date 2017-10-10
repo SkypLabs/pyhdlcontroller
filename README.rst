@@ -2,7 +2,7 @@
 Python HDLC controller
 ======================
 
-|Build Status| |Known Vulnerabilities|
+|Build Status| |Dependency Status| |Known Vulnerabilities|
 
 HDLC controller written in Python and based on the
 `python4yahdlc <https://github.com/SkypLabs/python4yahdlc>`__ Python
@@ -84,5 +84,7 @@ License
 
 .. |Build Status| image:: https://travis-ci.org/SkypLabs/python-hdlc-controller.svg
    :target: https://travis-ci.org/SkypLabs/python-hdlc-controller
+.. |Dependency Status| image:: https://gemnasium.com/badges/github.com/SkypLabs/python-hdlc-controller.svg
+   :target: https://gemnasium.com/github.com/SkypLabs/python-hdlc-controller
 .. |Known Vulnerabilities| image:: https://snyk.io/test/github/SkypLabs/python-hdlc-controller/badge.svg
    :target: https://snyk.io/test/github/SkypLabs/python-hdlc-controller
