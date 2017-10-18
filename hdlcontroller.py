@@ -230,20 +230,20 @@ class HDLController:
         def run(self):
             while not self.stop_receiver.isSet():
                 try:
-                    data, type, seq_no = get_data(self.read())
+                    data, ftype, seq_no = get_data(self.read())
 
-                    if type == FRAME_DATA:
+                    if ftype == FRAME_DATA:
                         with self.send_lock:
                             if self.callback != None:
                                 self.callback(data)
 
                             self.frames_received.put_nowait(data)
                             self.__send_ack((seq_no + 1) % HDLController.MAX_SEQ_NO)
-                    elif type == FRAME_ACK:
+                    elif ftype == FRAME_ACK:
                         seq_no_sent = (seq_no - 1) % HDLController.MAX_SEQ_NO
                         self.senders[seq_no_sent].ack_received()
                         del self.senders[seq_no_sent]
-                    elif type == FRAME_NACK:
+                    elif ftype == FRAME_NACK:
                         self.senders[seq_no].nack_received()
                     else:
                         raise TypeError('Bad frame type received')
