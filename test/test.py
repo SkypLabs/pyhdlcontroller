@@ -40,8 +40,11 @@ class TestYahdlc(unittest.TestCase):
         def write_func():
             pass
 
-        hdlc_c = HDLController(read_func, write_func)
-        hdlc_c.stop()
+        try:
+            hdlc_c = HDLController(read_func, write_func)
+            hdlc_c.stop()
+        except Exception as e:
+            self.fail(e)
 
     def test_send_one_frame(self):
         def read_func():
