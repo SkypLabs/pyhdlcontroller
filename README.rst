@@ -90,3 +90,8 @@ License
    :target: https://gemnasium.com/github.com/SkypLabs/python-hdlc-controller
 .. |Known Vulnerabilities| image:: https://snyk.io/test/github/SkypLabs/python-hdlc-controller/badge.svg
    :target: https://snyk.io/test/github/SkypLabs/python-hdlc-controller
+
+
+.. image:: https://api.codacy.com/project/badge/Grade/07336c5b36504927ab5c44550da13adf
+   :alt: Codacy Badge
+   :target: https://www.codacy.com/app/skyper/python-hdlc-controller?utm_source=github.com&utm_medium=referral&utm_content=SkypLabs/python-hdlc-controller&utm_campaign=badger
