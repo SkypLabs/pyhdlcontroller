@@ -31,7 +31,7 @@ Usage
 =====
 
 To create a new HDLC controller instance, you need to call the
-*HDLController* class with two parameters :
+``HDLController`` class with two parameters:
 
 ::
 
@@ -39,7 +39,7 @@ To create a new HDLC controller instance, you need to call the
 
 The first parameter is a function used to read from the serial bus while
 the second parameter is a function to write on it. For example, using
-the *pyserial* module :
+the ``pyserial`` module:
 
 ::
 
@@ -50,28 +50,28 @@ the *pyserial* module :
 
     hdlc_c = HDLController(read_serial, ser.write)
 
-To start the reception thread :
+To start the reception thread:
 
 ::
 
     hdlc_c.start()
 
-To send a new data frame :
+To send a new data frame:
 
 ::
 
     hdlc_c.send('Hello world!')
 
-And to get the next data frame received available in the *HDLController*
-internal queue :
+And to get the next data frame received available in the ``HDLController``
+internal queue:
 
 ::
 
     data = hdlc_c.get_data()
 
-The *get\_data()* method will block until a new data frame is available.
+The ``get_data()`` method will block until a new data frame is available.
 
-Finally, to stop all the *HDLController* threads :
+Finally, to stop all the ``HDLController`` threads:
 
 ::
 
