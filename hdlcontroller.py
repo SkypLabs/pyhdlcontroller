@@ -324,12 +324,12 @@ if __name__ == '__main__':
     ser.baudrate = args['baudrate']
     ser.timeout = args['serial_timeout']
 
-    stdout.write('[*] Connection ...\n')
+    stdout.write('[*] Connection...\n')
 
     try:
         ser.open()
     except serial.serialutil.SerialException as e:
-        stderr.write('[x] Serial connection problem : {0}\n'.format(e))
+        stderr.write('[x] Serial connection problem: {0}\n'.format(e))
         exit(1)
 
     def read_uart():
@@ -362,6 +362,6 @@ if __name__ == '__main__':
                 hdlc_c.send(args['message'])
                 sleep(args['interval'])
     except KeyboardInterrupt:
-        stdout.write('[*] Bye !\n')
+        stdout.write('[*] Bye!\n')
         hdlc_c.stop()
         ser.close()
