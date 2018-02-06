@@ -428,3 +428,13 @@ epub_exclude_files = ['search.html']
 # If false, no index is generated.
 #
 # epub_use_index = True
+
+# -- Options for GitHub integration ----------------------------------------------
+
+html_context = {
+    'display_github': True, # Integrate GitHub
+    'github_user': 'SkypLabs', # Username
+    'github_repo': 'python-hdlc-controller', # Repo name
+    'github_version': 'master', # Version
+    'conf_py_path': '/docs/', # Path in the checkout to the docs root
+}
