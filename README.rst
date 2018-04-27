@@ -16,7 +16,7 @@ With pip (recommanded)
 
 ::
 
-    pip3 install hdlcontroller
+    pip3 install --upgrade hdlcontroller
 
 From sources
 ------------
