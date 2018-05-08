@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+def get_arg_parser():
+    from argparse import ArgumentParser
+
+    ap = ArgumentParser(
+        description='HDLC controller example',
+        epilog="Example: ./hdlcontroller.py -d /dev/ttyUSB0 -b 115200 -m 'Hello world!'",
+    )
+
+    ap.add_argument('-b', '--baudrate', type=int, default='9600', help='serial baudrate value in bauds per second (default: 9600)')
+    ap.add_argument('-d', '--device', default='/dev/ttyACM0', help='serial device to use (default: /dev/ttyACM0)')
+    ap.add_argument('-i', '--interval', type=float, default='1.0', help='sending interval between two data frames in seconds (default: 1.0)')
+    ap.add_argument('-m', '--message', default='test', help='test message to send (default: test)')
+    ap.add_argument('-N', '--no-fcs-nack', action='store_true', help='do not send back an NACK when a corrupted frame is received (default: false)')
+    ap.add_argument('-q', '--quiet', action="store_true", help='do not send anything, just display what is received (default: false)')
+    ap.add_argument('-Q', '--queue-size', type=int, default='0', help='queue size for data frames received (default: 0)')
+    ap.add_argument('-t', '--serial-timeout', type=int, default='0', help='serial read timeout value in seconds (default: 0)')
+    ap.add_argument('-T', '--sending-timeout', type=float, default='2.0', help='HDLC sending timeout value in seconds (default: 2.0)')
+    ap.add_argument('-w', '--window', type=int, default='3', help='sending window (default: 3)')
+
+    ap.set_defaults(quiet=False, no_fcs_nack=False)
+
+    return ap
+
+
+if __name__ == '__main__':
+    import serial
+
+    from hdlcontroller.hdlcontroller import HDLController
+    from sys import stdout, stderr
+
+    args = vars(get_arg_parser().parse_args())
+
+    # Serial port configuration
+    ser = serial.Serial()
+    ser.port = args['device']
+    ser.baudrate = args['baudrate']
+    ser.timeout = args['serial_timeout']
+
+    stdout.write('[*] Connection...\n')
+
+    try:
+        ser.open()
+    except serial.serialutil.SerialException as e:
+        stderr.write('[x] Serial connection problem: {0}\n'.format(e))
+        exit(1)
+
+    def read_uart():
+        return ser.read(ser.in_waiting)
+
+    def send_callback(data):
+        print('> {0}'.format(data))
+
+    def receive_callback(data):
+        print('< {0}'.format(data))
+
+    try:
+        hdlc_c = HDLController(
+            read_uart,
+            ser.write,
+            window = args['window'],
+            sending_timeout = args['sending_timeout'],
+            frames_queue_size = args['queue_size'],
+            fcs_nack = not(no_fcs_nack),
+        )
+        hdlc_c.set_send_callback(send_callback)
+        hdlc_c.set_receive_callback(receive_callback)
+        hdlc_c.start()
+
+        if args['quiet']:
+            while True:
+                sleep(1)
+        else:
+            while True:
+                hdlc_c.send(args['message'])
+                sleep(args['interval'])
+    except KeyboardInterrupt:
+        stdout.write('[*] Bye!\n')
+        hdlc_c.stop()
+        ser.close()

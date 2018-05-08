@@ -1,7 +1,8 @@
 import unittest
-from yahdlc import *
-from hdlcontroller import HDLController
+
+from hdlcontroller.hdlcontroller import HDLController
 from time import sleep
+from yahdlc import *
 
 class TestYahdlc(unittest.TestCase):
     def test_without_parameters(self):
