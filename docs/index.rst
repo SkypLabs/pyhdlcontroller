@@ -1,22 +1,18 @@
-.. Python HDLC controller documentation master file, created by
-   sphinx-quickstart on Tue Feb  6 12:48:49 2018.
+.. HDLController documentation master file, created by
+   sphinx-quickstart on Thu Jun  7 16:41:51 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Python HDLC controller's documentation!
-==================================================
+Welcome to HDLController's documentation!
+=========================================
 
-Contents:
+HDLController is an HDLC controller written in Python and based on the
+`python4yahdlc <https://github.com/SkypLabs/python4yahdlc>`__ Python
+module to encode and decode the HDLC frames.
 
 .. toctree::
-   :maxdepth: 2
+    :caption: Table of Contents
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+    installation
+    usage
+    api
