@@ -13,6 +13,7 @@ module to encode and decode the HDLC frames.
 .. toctree::
     :caption: Table of Contents
 
+    overview
     installation
     usage
     modules
