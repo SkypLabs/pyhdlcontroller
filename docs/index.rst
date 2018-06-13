@@ -15,4 +15,4 @@ module to encode and decode the HDLC frames.
 
     installation
     usage
-    api
+    modules
