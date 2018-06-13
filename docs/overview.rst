@@ -2,7 +2,7 @@
 Overview
 ========
 
-The controller supports the following frames:
+The HDLC controller supports the following frames:
 
 - DATA (I-frame_ with Poll bit)
 - ACK (`S-frame Receive Ready`_ with Final bit)
@@ -25,7 +25,7 @@ Each DATA frame must be positively or negatively acknowledged using respectively
 
 The number of DATA frames that can be sent before receiving the first acknowledgment is determined by the ``window`` parameter of :py:class:`HDLController <hdlcontroller.hdlcontroller.HDLController>`. Its default value is 3.
 
-If the FCS_ field of a frame is not valid, an NACK will be sent back with the same sequence number as the one of the corrupted frame to notify the sender about it:
+If the FCS_ field of a received frame is not valid, an NACK will be sent back with the same sequence number as the one of the corrupted frame to notify the sender about it:
 
 .. seqdiag::
 
