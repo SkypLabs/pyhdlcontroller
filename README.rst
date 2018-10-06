@@ -2,7 +2,7 @@
 Python HDLC Controller
 ======================
 
-|PyPI Package| |Build Status| |Code Coverage| |Known Vulnerabilities| |Documentation Status|
+|PyPI Package| |Build Status| |Code Coverage| |Documentation Status|
 
 HDLC controller written in Python and based on the
 `python4yahdlc <https://github.com/SkypLabs/python4yahdlc>`__ Python
