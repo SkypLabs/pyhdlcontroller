@@ -11,7 +11,7 @@ module to encode and decode the HDLC frames.
 Installation
 ============
 
-With pip (recommanded)
+With pip (recommended)
 ----------------------
 
 ::

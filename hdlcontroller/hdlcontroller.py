@@ -39,7 +39,7 @@ class HDLController:
 
     def start(self):
         """
-        Start HDLC controller's threads.
+        Starts HDLC controller's threads.
         """
 
         self.receiver = self.Receiver(
@@ -56,7 +56,7 @@ class HDLController:
 
     def stop(self):
         """
-        Stop HDLC controller's threads.
+        Stops HDLC controller's threads.
         """
 
         if self.receiver != None:
@@ -67,12 +67,11 @@ class HDLController:
 
     def set_send_callback(self, callback):
         """
-        Set the send callback function.
+        Sets the send callback function.
 
-        If the HDLC controller has already
-        been started, the new callback
-        function will be take into account
-        for the next data frames to send.
+        If the HDLC controller has already been started, the new
+        callback function will be taken into account for the next
+        data frames to be sent.
         """
 
         if not hasattr(callback, '__call__'):
@@ -82,10 +81,10 @@ class HDLController:
 
     def set_receive_callback(self, callback):
         """
-        Set the receive callback function.
+        Sets the receive callback function.
 
-        This method has to be called before
-        starting the HDLC controller.
+        This method has to be called before starting the
+        HDLC controller.
         """
 
         if not hasattr(callback, '__call__'):
@@ -95,7 +94,7 @@ class HDLController:
 
     def set_sending_timeout(self, sending_timeout):
         """
-        Set the sending timeout.
+        Sets the sending timeout.
         """
 
         if sending_timeout >= HDLController.MIN_SENDING_TIMEOUT:
@@ -103,19 +102,17 @@ class HDLController:
 
     def get_senders_number(self):
         """
-        Return the number of active
-        senders.
+        Returns the number of active senders.
         """
 
         return len(self.senders)
 
     def send(self, data):
         """
-        Send a new data frame.
+        Sends a new data frame.
 
-        This method will block until a new room is
-        available for a new sender. This limit is
-        determined by the size of the window.
+        This method will block until a new room is available for
+        a new sender. This limit is determined by the size of the window.
         """
 
         while len(self.senders) >= self.window:
@@ -135,10 +132,9 @@ class HDLController:
 
     def get_data(self):
         """
-        Get the next frame received.
+        Gets the next frame received.
 
-        This method will block until a new
-        data frame is available.
+        This method will block until a new data frame is available.
         """
 
         return self.frames_received.get()
@@ -174,7 +170,7 @@ class HDLController:
 
         def join(self, timeout=None):
             """
-            Stop the current thread.
+            Stops the current thread.
             """
 
             self.stop_sender.set()
@@ -183,27 +179,23 @@ class HDLController:
 
         def ack_received(self):
             """
-            Inform the sender that the ack frame
-            has been received which has the
-            consequence of stopping the current
-            thread.
+            Informs the sender that the related ACK frame has been received.
+            As a consequence, the current thread is being stopped.
             """
 
             self.join()
 
         def nack_received(self):
             """
-            Inform the sender that a nack frame
-            has been received which has the
-            consequence of resending the data
-            frame.
+            Informs the sender that an NACK frame has been received.
+            As a consequence, the data frame is being resent.
             """
 
             self.stop_timeout.set()
 
         def __send_data(self):
             """
-            Send a new data frame.
+            Sends a new data frame.
             """
 
             if self.callback != None:
@@ -249,35 +241,32 @@ class HDLController:
                     else:
                         raise TypeError('Bad frame type received')
                 except MessageError:
-                    # No HDLC frame detected
+                    # No HDLC frame detected.
                     pass
                 except KeyError:
-                    # Drop bad (n)ack
+                    # Drops bad (N)ACKs.
                     pass
                 except Full:
-                    # Drop new data frame when
-                    # the frames received queue
-                    # is full
+                    # Drops new data frames when the receive queue
+                    # is full.
                     pass
                 except FCSError as e:
-                    # Send back an NACK if a
-                    # corrupted frame is received
-                    # and the FCS NACK option is enabled
+                    # Sends back an NACK if a corrupted frame is received
+                    # and if the FCS NACK option is enabled.
                     if self.fcs_nack:
                         with self.send_lock:
                             self.__send_nack(e.args[0])
                 except TypeError:
-                    # Generally, raised when an
-                    # HDLC frame with a bad frame
-                    # type is received
+                    # Generally, raised when an HDLC frame with a bad frame
+                    # type is received.
                     pass
                 finally:
-                    # 200 µs
+                    # 200 µs.
                     sleep(200 / 1000000.0)
 
         def join(self, timeout=None):
             """
-            Stop the current thread.
+            Stops the current thread.
             """
 
             self.stop_receiver.set()
@@ -285,14 +274,14 @@ class HDLController:
 
         def __send_ack(self, seq_no):
             """
-            Send a new ack frame.
+            Sends a new ACK frame.
             """
 
             self.write(frame_data('', FRAME_ACK, seq_no))
 
         def __send_nack(self, seq_no):
             """
-            Send a new nack frame.
+            Sends a new NACK frame.
             """
 
             self.write(frame_data('', FRAME_NACK, seq_no))
