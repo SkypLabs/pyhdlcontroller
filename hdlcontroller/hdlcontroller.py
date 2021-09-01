@@ -12,11 +12,16 @@ class HDLController:
     An HDLC controller based on python4yahdlc.
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     MAX_SEQ_NO = 8
     MIN_SENDING_TIMEOUT = 0.5
 
     def __init__(self, read_func, write_func, sending_timeout=2, window=3,
                  frames_queue_size=0, fcs_nack=True):
+
+        # pylint: disable=too-many-arguments
+
         if not hasattr(read_func, "__call__"):
             raise TypeError(
                 "The read function parameter is not a callable object"
@@ -32,7 +37,7 @@ class HDLController:
 
         self.window = window
         self.fcs_nack = fcs_nack
-        self.senders = dict()
+        self.senders = {}
         self.send_lock = Lock()
         self.new_seq_no = 0
 
@@ -69,8 +74,8 @@ class HDLController:
         if self.receiver is not None:
             self.receiver.join()
 
-        for s in self.senders.values():
-            s.join()
+        for sender in self.senders.values():
+            sender.join()
 
     def set_send_callback(self, callback):
         """
@@ -156,6 +161,9 @@ class HDLController:
 
         def __init__(self, write_func, send_lock, data, seq_no, timeout=2,
                      callback=None):
+
+            # pylint: disable=too-many-arguments
+
             super().__init__()
             self.write = write_func
             self.send_lock = send_lock
@@ -221,6 +229,9 @@ class HDLController:
 
         def __init__(self, read_func, write_func, send_lock, senders_list,
                      frames_received, callback=None, fcs_nack=True):
+
+            # pylint: disable=too-many-arguments
+
             super().__init__()
             self.read = read_func
             self.write = write_func
@@ -233,6 +244,9 @@ class HDLController:
             self.stop_receiver = Event()
 
         def run(self):
+
+            # pylint: disable=too-many-branches
+
             while not self.stop_receiver.isSet():
                 try:
                     data, ftype, seq_no = get_data(self.read())
@@ -252,7 +266,7 @@ class HDLController:
                     elif ftype == FRAME_NACK:
                         self.senders[seq_no].nack_received()
                     else:
-                        raise TypeError('Bad frame type received')
+                        raise TypeError("Bad frame type received")
                 except MessageError:
                     # No HDLC frame detected.
                     pass
@@ -263,12 +277,12 @@ class HDLController:
                     # Drops new data frames when the receive queue
                     # is full.
                     pass
-                except FCSError as e:
+                except FCSError as err:
                     # Sends back an NACK if a corrupted frame is received
                     # and if the FCS NACK option is enabled.
                     if self.fcs_nack:
                         with self.send_lock:
-                            self.__send_nack(e.args[0])
+                            self.__send_nack(err.args[0])
                 except TypeError:
                     # Generally, raised when an HDLC frame with a bad frame
                     # type is received.
