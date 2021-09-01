@@ -1,10 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from yahdlc import *
 from threading import Thread, Event, Lock
 from queue import Queue, Full
 from time import sleep, time
+
+from yahdlc import FRAME_ACK, FRAME_NACK, FRAME_DATA
+from yahdlc import FCSError, MessageError
+from yahdlc import frame_data, get_data
+
 
 class HDLController:
     """
@@ -14,11 +15,17 @@ class HDLController:
     MAX_SEQ_NO = 8
     MIN_SENDING_TIMEOUT = 0.5
 
-    def __init__(self, read_func, write_func, sending_timeout=2, window=3, frames_queue_size=0, fcs_nack=True):
-        if not hasattr(read_func, '__call__'):
-            raise TypeError('The read function parameter is not a callable object')
-        if not hasattr(write_func, '__call__'):
-            raise TypeError('The write function parameter is not a callable object')
+    def __init__(self, read_func, write_func, sending_timeout=2, window=3,
+                 frames_queue_size=0, fcs_nack=True):
+        if not hasattr(read_func, "__call__"):
+            raise TypeError(
+                "The read function parameter is not a callable object"
+            )
+
+        if not hasattr(write_func, "__call__"):
+            raise TypeError(
+                "The write function parameter is not a callable object"
+            )
 
         self.read = read_func
         self.write = write_func
@@ -59,7 +66,7 @@ class HDLController:
         Stops HDLC controller's threads.
         """
 
-        if self.receiver != None:
+        if self.receiver is not None:
             self.receiver.join()
 
         for s in self.senders.values():
@@ -69,13 +76,15 @@ class HDLController:
         """
         Sets the send callback function.
 
-        If the HDLC controller has already been started, the new
-        callback function will be taken into account for the next
-        data frames to be sent.
+        If the HDLC controller has already been started, the new callback
+        function will be taken into account for the next data frames to be
+        sent.
         """
 
-        if not hasattr(callback, '__call__'):
-            raise TypeError('The callback function parameter is not a callable object')
+        if not hasattr(callback, "__call__"):
+            raise TypeError(
+                "The callback function parameter is not a callable object"
+            )
 
         self.send_callback = callback
 
@@ -83,12 +92,13 @@ class HDLController:
         """
         Sets the receive callback function.
 
-        This method has to be called before starting the
-        HDLC controller.
+        This method has to be called before starting the HDLC controller.
         """
 
-        if not hasattr(callback, '__call__'):
-            raise TypeError('The callback function parameter is not a callable object')
+        if not hasattr(callback, "__call__"):
+            raise TypeError(
+                "The callback function parameter is not a callable object"
+            )
 
         self.receive_callback = callback
 
@@ -111,8 +121,8 @@ class HDLController:
         """
         Sends a new data frame.
 
-        This method will block until a new room is available for
-        a new sender. This limit is determined by the size of the window.
+        This method will block until a new room is available for a new sender.
+        This limit is determined by the size of the window.
         """
 
         while len(self.senders) >= self.window:
@@ -144,7 +154,8 @@ class HDLController:
         Thread used to send HDLC frames.
         """
 
-        def __init__(self, write_func, send_lock, data, seq_no, timeout=2, callback=None):
+        def __init__(self, write_func, send_lock, data, seq_no, timeout=2,
+                     callback=None):
             super().__init__()
             self.write = write_func
             self.send_lock = send_lock
@@ -187,8 +198,8 @@ class HDLController:
 
         def nack_received(self):
             """
-            Informs the sender that an NACK frame has been received.
-            As a consequence, the data frame is being resent.
+            Informs the sender that an NACK frame has been received.  As a
+            consequence, the data frame is being resent.
             """
 
             self.stop_timeout.set()
@@ -198,7 +209,7 @@ class HDLController:
             Sends a new data frame.
             """
 
-            if self.callback != None:
+            if self.callback is not None:
                 self.callback(self.data)
 
             self.write(frame_data(self.data, FRAME_DATA, self.seq_no))
@@ -208,7 +219,8 @@ class HDLController:
         Thread used to receive HDLC frames.
         """
 
-        def __init__(self, read_func, write_func, send_lock, senders_list, frames_received, callback=None, fcs_nack=True):
+        def __init__(self, read_func, write_func, send_lock, senders_list,
+                     frames_received, callback=None, fcs_nack=True):
             super().__init__()
             self.read = read_func
             self.write = write_func
@@ -227,11 +239,12 @@ class HDLController:
 
                     if ftype == FRAME_DATA:
                         with self.send_lock:
-                            if self.callback != None:
+                            if self.callback is not None:
                                 self.callback(data)
 
                             self.frames_received.put_nowait(data)
-                            self.__send_ack((seq_no + 1) % HDLController.MAX_SEQ_NO)
+                            self.__send_ack((seq_no + 1) %
+                                            HDLController.MAX_SEQ_NO)
                     elif ftype == FRAME_ACK:
                         seq_no_sent = (seq_no - 1) % HDLController.MAX_SEQ_NO
                         self.senders[seq_no_sent].ack_received()
@@ -277,11 +290,11 @@ class HDLController:
             Sends a new ACK frame.
             """
 
-            self.write(frame_data('', FRAME_ACK, seq_no))
+            self.write(frame_data("", FRAME_ACK, seq_no))
 
         def __send_nack(self, seq_no):
             """
             Sends a new NACK frame.
             """
 
-            self.write(frame_data('', FRAME_NACK, seq_no))
+            self.write(frame_data("", FRAME_NACK, seq_no))
