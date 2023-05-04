@@ -30,6 +30,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+dev = [
+  "black",
+  "isort",
+  "ruff",
+]
+
 docs = [
   "sphinx >= 1.4.0",
   "sphinxcontrib-seqdiag >= 0.8.5",
@@ -38,8 +44,6 @@ docs = [
 ]
 
 tests = [
-  "black",
-  "ruff",
   "tox"
 ]
 
@@ -49,6 +53,9 @@ repository = "https://github.com/SkypLabs/python-hdlc-controller"
 
 [project.scripts]
 hdlc-tester = "hdlcontroller.cli:main"
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = [
