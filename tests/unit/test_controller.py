@@ -7,7 +7,7 @@ from time import sleep
 
 from yahdlc import FRAME_ACK, FRAME_DATA, FRAME_NACK, frame_data
 
-from hdlcontroller.hdlcontroller import HDLController
+from hdlcontroller.hdlcontroller import HDLController, Timeout
 
 
 class TestHDLCController(unittest.TestCase):
@@ -20,23 +20,19 @@ class TestHDLCController(unittest.TestCase):
         Instantiates a new HDLC controller without parameters.
         """
 
-        # pylint: disable=no-value-for-parameter
-
         with self.assertRaises(TypeError):
-            _ = HDLController()
+            _ = HDLController()  # type: ignore
 
     def test_with_only_one_parameter(self):
         """
         Instantiates a new HDLC controller without write function.
         """
 
-        # pylint: disable=no-value-for-parameter
-
-        def read_func():
-            pass
+        def read_func() -> bytes:
+            return b"test"
 
         with self.assertRaises(TypeError):
-            _ = HDLController(read_func)
+            _ = HDLController(read_func)  # type: ignore
 
     def test_bad_read_function(self):
         """
@@ -45,11 +41,11 @@ class TestHDLCController(unittest.TestCase):
 
         read_func = "not a function"
 
-        def write_func():
+        def write_func(_: bytes) -> None:
             pass
 
         with self.assertRaises(TypeError):
-            _ = HDLController(read_func, write_func)
+            _ = HDLController(read_func, write_func)  # type: ignore
 
     def test_bad_write_function(self):
         """
@@ -58,23 +54,21 @@ class TestHDLCController(unittest.TestCase):
 
         write_func = "not a function"
 
-        def read_func():
-            pass
+        def read_func() -> bytes:
+            return b"test"
 
         with self.assertRaises(TypeError):
-            _ = HDLController(read_func, write_func)
+            _ = HDLController(read_func, write_func)  # type: ignore
 
     def test_stop_before_start(self):
         """
         Stops the HDLC controller before it even started.
         """
 
-        # pylint: disable=no-self-use
+        def read_func() -> bytes:
+            return b"test"
 
-        def read_func():
-            pass
-
-        def write_func():
+        def write_func(_: bytes) -> None:
             pass
 
         hdlc_c = HDLController(read_func, write_func)
@@ -85,17 +79,17 @@ class TestHDLCController(unittest.TestCase):
         Tests the HDLC controller by sending one frame.
         """
 
-        def read_func():
-            pass
+        def read_func() -> bytes:
+            return b"test"
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         write_func.data = None
 
         hdlc_c = HDLController(read_func, write_func)
 
-        hdlc_c.send("test")
+        hdlc_c.send(b"test")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test", FRAME_DATA, 0))
@@ -108,30 +102,30 @@ class TestHDLCController(unittest.TestCase):
         Tests the HDLC controller by sending three frame.
         """
 
-        def read_func():
-            pass
+        def read_func() -> bytes:
+            return b"test"
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         hdlc_c = HDLController(read_func, write_func)
 
         write_func.data = None
-        hdlc_c.send("test_1")
+        hdlc_c.send(b"test_1")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test_1", FRAME_DATA, 0))
         self.assertEqual(hdlc_c.get_senders_number(), 1)
 
         write_func.data = None
-        hdlc_c.send("test2")
+        hdlc_c.send(b"test2")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test2", FRAME_DATA, 1))
         self.assertEqual(hdlc_c.get_senders_number(), 2)
 
         write_func.data = None
-        hdlc_c.send("test3")
+        hdlc_c.send(b"test3")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test3", FRAME_DATA, 2))
@@ -144,16 +138,16 @@ class TestHDLCController(unittest.TestCase):
         Tests the timeout while sending one frame.
         """
 
-        def read_func():
-            pass
+        def read_func() -> bytes:
+            return b"test"
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         hdlc_c = HDLController(read_func, write_func)
 
         write_func.data = None
-        hdlc_c.send("test")
+        hdlc_c.send(b"test")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test", FRAME_DATA, 0))
@@ -172,16 +166,16 @@ class TestHDLCController(unittest.TestCase):
         Tests the timeout while sending three frames.
         """
 
-        def read_func():
-            pass
+        def read_func() -> bytes:
+            return b"test"
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
-        hdlc_c = HDLController(read_func, write_func, sending_timeout=5)
+        hdlc_c = HDLController(read_func, write_func, sending_timeout=Timeout(5.0))
 
         write_func.data = None
-        hdlc_c.send("test_1")
+        hdlc_c.send(b"test_1")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test_1", FRAME_DATA, 0))
@@ -190,7 +184,7 @@ class TestHDLCController(unittest.TestCase):
         sleep(1)
 
         write_func.data = None
-        hdlc_c.send("test_2")
+        hdlc_c.send(b"test_2")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test_2", FRAME_DATA, 1))
@@ -199,7 +193,7 @@ class TestHDLCController(unittest.TestCase):
         sleep(1)
 
         write_func.data = None
-        hdlc_c.send("test_3")
+        hdlc_c.send(b"test_3")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test_3", FRAME_DATA, 2))
@@ -230,16 +224,16 @@ class TestHDLCController(unittest.TestCase):
         Tests the reception of an ACK frame after having sent a DATA one.
         """
 
-        def read_func():
+        def read_func() -> bytes:
             return frame_data("", FRAME_ACK, 1)
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         hdlc_c = HDLController(read_func, write_func)
 
         write_func.data = None
-        hdlc_c.send("test")
+        hdlc_c.send(b"test")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test", FRAME_DATA, 0))
@@ -257,16 +251,16 @@ class TestHDLCController(unittest.TestCase):
         one.
         """
 
-        def read_func():
+        def read_func() -> bytes:
             return frame_data("", FRAME_ACK, 4)
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         hdlc_c = HDLController(read_func, write_func)
 
         write_func.data = None
-        hdlc_c.send("test")
+        hdlc_c.send(b"test")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test", FRAME_DATA, 0))
@@ -283,16 +277,16 @@ class TestHDLCController(unittest.TestCase):
         Tests the reception of an NACK frame after having sent a DATA one.
         """
 
-        def read_func():
+        def read_func() -> bytes:
             return frame_data("", FRAME_NACK, 0)
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         hdlc_c = HDLController(read_func, write_func)
 
         write_func.data = None
-        hdlc_c.send("test")
+        hdlc_c.send(b"test")
         while write_func.data is None:
             pass
         self.assertEqual(write_func.data, frame_data("test", FRAME_DATA, 0))
@@ -309,10 +303,10 @@ class TestHDLCController(unittest.TestCase):
         Tests the reception of one DATA frame.
         """
 
-        def read_func():
+        def read_func() -> bytes:
             return frame_data("test", FRAME_DATA, 0)
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         hdlc_c = HDLController(read_func, write_func)
@@ -329,12 +323,12 @@ class TestHDLCController(unittest.TestCase):
         Tests the reception of three DATA frames.
         """
 
-        def read_func():
+        def read_func() -> bytes:
             data = frame_data("test_" + str(read_func.i), FRAME_DATA, read_func.i)
             read_func.i += 1
             return data
 
-        def write_func():
+        def write_func(_: bytes) -> None:
             pass
 
         hdlc_c = HDLController(read_func, write_func)
@@ -353,12 +347,12 @@ class TestHDLCController(unittest.TestCase):
         NACK as expected.
         """
 
-        def read_func():
+        def read_func() -> bytes:
             data = bytearray(frame_data("test", FRAME_DATA, 0))
             data[7] ^= 0x01
             return bytes(data)
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         hdlc_c = HDLController(read_func, write_func)
@@ -377,12 +371,12 @@ class TestHDLCController(unittest.TestCase):
         does not send back an NACK as the option has been turned off.
         """
 
-        def read_func():
+        def read_func() -> bytes:
             data = bytearray(frame_data("test", FRAME_DATA, 0))
             data[7] ^= 0x01
             return bytes(data)
 
-        def write_func(data):
+        def write_func(data: bytes) -> None:
             write_func.data = data
 
         hdlc_c = HDLController(read_func, write_func, fcs_nack=False)
