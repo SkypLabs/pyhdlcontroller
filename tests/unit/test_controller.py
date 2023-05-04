@@ -3,12 +3,11 @@ Unit tests for the HDLC controller.
 """
 
 import unittest
-
 from time import sleep
 
+from yahdlc import FRAME_ACK, FRAME_DATA, FRAME_NACK, frame_data
+
 from hdlcontroller.hdlcontroller import HDLController
-from yahdlc import FRAME_ACK, FRAME_NACK, FRAME_DATA
-from yahdlc import frame_data
 
 
 class TestHDLCController(unittest.TestCase):
@@ -331,8 +330,7 @@ class TestHDLCController(unittest.TestCase):
         """
 
         def read_func():
-            data = frame_data("test_" + str(read_func.i), FRAME_DATA,
-                              read_func.i)
+            data = frame_data("test_" + str(read_func.i), FRAME_DATA, read_func.i)
             read_func.i += 1
             return data
 
