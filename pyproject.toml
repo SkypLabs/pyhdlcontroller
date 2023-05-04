@@ -38,8 +38,8 @@ docs = [
 ]
 
 tests = [
-  "flake8",
-  "pylint",
+  "black",
+  "ruff",
   "tox"
 ]
 
