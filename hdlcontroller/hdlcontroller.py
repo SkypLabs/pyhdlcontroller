@@ -192,11 +192,11 @@ class HDLController:
             self.next_timeout: Timeout = Timeout(0.0)
 
         def run(self) -> None:
-            while not self.stop_sender.isSet():
+            while not self.stop_sender.is_set():
                 self.stop_timeout.wait(max(0, self.next_timeout - time()))
                 self.stop_timeout.clear()
 
-                if not self.stop_sender.isSet():
+                if not self.stop_sender.is_set():
                     self.next_timeout = Timeout(time() + self.timeout)
 
                     with self.send_lock:
@@ -264,7 +264,7 @@ class HDLController:
             self.stop_receiver: Event = Event()
 
         def run(self):
-            while not self.stop_receiver.isSet():
+            while not self.stop_receiver.is_set():
                 try:
                     data, ftype, seq_no = get_data(self.read())
 
