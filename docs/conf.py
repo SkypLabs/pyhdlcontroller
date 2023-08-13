@@ -21,7 +21,7 @@ from hdlcontroller import __version__ as VERSION
 # -- Project information -----------------------------------------------------
 
 project = "HDLController"
-copyright = "2018, Paul-Emmanuel Raoul"
+copyright = "2015, Paul-Emmanuel Raoul"
 author = "Paul-Emmanuel Raoul"
 
 # The full version, including alpha/beta/rc tags
