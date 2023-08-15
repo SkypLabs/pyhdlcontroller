@@ -158,13 +158,11 @@ def main():
         hdlc_c.set_receive_callback(receive_callback)
         hdlc_c.start()
 
-        if args["quiet"]:
-            while True:
-                sleep(1)
-        else:
-            while True:
+        while True:
+            if not args["quiet"]:
                 hdlc_c.send(args["message"])
-                sleep(args["interval"])
+
+            sleep(args["interval"])
     except KeyboardInterrupt:
         stdout.write("[*] Bye!\n")
     finally:
