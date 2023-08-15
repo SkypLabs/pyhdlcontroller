@@ -132,7 +132,7 @@ def main():
 
     try:
         ser.open()
-    except serial.serialutil.SerialException as err:
+    except serial.SerialException as err:
         stderr.write("[x] Serial connection problem: {0}\n".format(err))
         sys_exit(1)
 
