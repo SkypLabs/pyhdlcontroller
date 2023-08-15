@@ -167,5 +167,8 @@ def main():
                 sleep(args["interval"])
     except KeyboardInterrupt:
         stdout.write("[*] Bye!\n")
-        hdlc_c.stop()
+    finally:
+        if "hdlc_c" in locals():
+            hdlc_c.stop()  # type: ignore
+
         ser.close()
