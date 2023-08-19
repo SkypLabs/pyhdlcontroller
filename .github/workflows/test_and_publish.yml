@@ -1,0 +1,125 @@
+name: Test and Publish
+
+on:
+  push:
+
+  pull_request:
+    branches: [ 'develop' ]
+
+jobs:
+  is-duplicate:
+    name: Is Duplicate
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip-check.outputs.should_skip }}
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - id: skip-check
+        name: Skip Check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          paths_ignore: '["**.rst", "**.md", "**.txt"]'
+
+  test-code:
+    name: Test code
+    runs-on: ${{ matrix.os }}
+    needs: is-duplicate
+    if: needs.is-duplicate.outputs.should_skip != 'true'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+
+      - name: Test with Tox
+        run: tox
+
+  test-docs:
+    name: Test documentation
+    runs-on: ubuntu-latest
+    needs: is-duplicate
+    if: needs.is-duplicate.outputs.should_skip != 'true'
+    env:
+      PYTHON_VERSION: '3.x'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[docs]
+
+      - name: Build documentation
+        working-directory: docs
+        run: make html
+
+  publish-to-test-pypi:
+    name: Publish to TestPyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://test.pypi.org/project/hdlcontroller/
+    permissions:
+      # Required for trusted publishing on PyPI.
+      id-token: write
+    needs: [test-code, test-docs]
+    if: |
+      !failure() &&
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@v1.8.10
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          print-hash: true
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://pypi.org/project/hdlcontroller/
+    permissions:
+      # Required for trusted publishing on PyPI.
+      id-token: write
+    needs: [publish-to-test-pypi]
+    if: |
+      !failure() &&
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.8.10
+        with:
+          print-hash: true

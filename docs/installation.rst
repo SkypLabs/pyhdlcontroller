@@ -2,18 +2,25 @@
 Installation
 ============
 
-Using pip (recommanded)
+From PyPI (recommanded)
 -----------------------
 
 ::
 
-    sudo pip3 install --upgrade hdlcontroller
+    pip3 install --upgrade hdlcontroller
 
 From sources
 ------------
+
+HDLController is packaged with Setuptools_.
+
+The default Git branch is ``develop``. To install the latest stable version,
+you need to clone the ``main`` branch.
 
 ::
 
     git clone https://github.com/SkypLabs/python-hdlc-controller.git
     cd python-hdlc-controller
-    sudo pip3 install --upgrade .
+    pip3 install --upgrade .
+
+.. _Setuptools: https://setuptools.pypa.io/
