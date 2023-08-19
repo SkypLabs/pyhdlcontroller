@@ -7,8 +7,8 @@ Welcome to HDLController's documentation!
 =========================================
 
 HDLController is an HDLC controller written in Python and based on the
-`python4yahdlc <https://github.com/SkypLabs/python4yahdlc>`__ Python
-module to encode and decode the HDLC frames.
+`python4yahdlc <https://github.com/SkypLabs/python4yahdlc>`__ Python module to
+encode and decode the HDLC frames.
 
 .. toctree::
     :caption: Table of Contents

@@ -20,7 +20,7 @@ def get_arg_parser():
     arg_parser = ArgumentParser(
         description="HDLC controller example",
         epilog="""
-        Example: hdlc_test -d /dev/ttyUSB0 -b 115200 -m 'Hello world!'
+        Example: hdlc-tester -d /dev/ttyUSB0 -b 115200 -m 'Hello world!'
         """,
     )
 
