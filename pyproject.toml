@@ -1,6 +1,5 @@
 [project]
 name = "hdlcontroller"
-version = "0.5.2"
 description = "HDLC controller"
 readme = "README.rst"
 requires-python = ">= 3.10, <4"
@@ -24,6 +23,7 @@ dependencies = [
   "python4yahdlc >= 1.3.5",
   "pyserial >= 3.0",
 ]
+dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
@@ -49,6 +49,9 @@ repository = "https://github.com/SkypLabs/python-hdlc-controller"
 
 [project.scripts]
 hdlc-tester = "hdlcontroller.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "hdlcontroller.__version__" }
 
 [tool.isort]
 profile = "black"
