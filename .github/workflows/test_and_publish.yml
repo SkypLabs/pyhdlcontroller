@@ -4,7 +4,7 @@ on:
   push:
 
   pull_request:
-    branches: [ 'develop' ]
+    branches: ["develop"]
 
 jobs:
   is-duplicate:
@@ -61,7 +61,7 @@ jobs:
     needs: is-duplicate
     if: needs.is-duplicate.outputs.should_skip != 'true'
     env:
-      PYTHON_VERSION: '3.x'
+      PYTHON_VERSION: "3.x"
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -102,7 +102,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install dependencies
         run: |
@@ -140,7 +140,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install dependencies
         run: |
